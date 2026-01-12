@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Search Blood Donors</title>
+</head>
+<body>
+
+<h2>🔍 Search Blood Donors</h2>
+
+Blood Group:
+<input id="blood" placeholder="A+, B+, O-" />
+
+City:
+<input id="city" placeholder="Indore" />
+
+<button onclick="search()">Search</button>
+
+<hr>
+
+<div id="result"></div>
+
+<script>
+/* =========================
+   SEARCH DONORS (NEARBY)
+========================= */
+function search() {
+  const blood = document.getElementById("blood").value.trim();
+  const city = document.getElementById("city").value.trim();
+
+  // Example Indore coordinates
+  const lat = 22.72;
+  const lng = 75.88;
+
+  fetch(`http://localhost:5000/api/donors/nearby?lat=${lat}&lng=${lng}&km=10`)
+    .then(res => res.json())
+    .then(data => {
+      const result = document.getElementById("result");
+
+      if (!data || data.length === 0) {
+        result.innerHTML = "<p>No donors found</p>";
+        return;
+      }
+
+      // filter by blood + city
+      const filtered = data.filter(d =>
+        (!blood || d.bloodGroup === blood) &&
+        (!city || d.city.toLowerCase().includes(city.toLowerCase()))
+      );
+
+      if (filtered.length === 0) {
+        result.innerHTML = "<p>No donors found</p>";
+        return;
+      }
+
+      result.innerHTML = filtered.map(d => `
+        <p>
+          <b>${d.name}</b> | ${d.bloodGroup} | ${d.city} | ${d.phone}
+          <button onclick="alertDonor('${d.phone}','${d.bloodGroup}')">Alert</button>
+        </p>
+      `).join("");
+    })
+    .catch(err => console.log(err));
+}
+
+/* =========================
+   ALERT DONOR
+========================= */
+function alertDonor(phone, blood){
+  fetch("http://localhost:5000/api/donors/alert", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phone, blood })
+  })
+  .then(res => res.json())
+  .then(data => alert(data.message || "Alert sent"))
+  .catch(err => console.log(err));
+}
+</script>
+
+</body>
+</html>

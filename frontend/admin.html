@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+</head>
+<body>
+
+<h2>🩸 Admin – Donor Management</h2>
+
+<button onclick="loadDonors()">Load Donors</button>
+<button onclick="loadStats()">Load Stats</button>
+
+<hr>
+
+<div id="stats"></div>
+<div id="list"></div>
+
+<script>
+/* =========================
+   CHECK LOGIN TOKEN
+========================= */
+const token = localStorage.getItem("token");
+
+if (!token) {
+  alert("Please login first");
+  window.location.href = "login.html";
+}
+
+/* =========================
+   LOAD DONORS
+========================= */
+function loadDonors(){
+  fetch("http://localhost:5000/api/admin/donors", {
+    headers:{ Authorization: token }
+  })
+  .then(res => res.json())
+  .then(data => {
+    const list = document.getElementById("list");
+
+    if (!data || data.length === 0) {
+      list.innerHTML = "<p>No donors found</p>";
+      return;
+    }
+
+    list.innerHTML = data.map(d => `
+      <p>
+        <b>${d.name || "No Name"}</b> | ${d.bloodGroup} | ${d.city} | ${d.phone}
+        <button onclick="deleteDonor('${d._id}')">Delete</button>
+      </p>
+    `).join("");
+  })
+  .catch(err => console.log(err));
+}
+
+/* =========================
+   DELETE DONOR
+========================= */
+function deleteDonor(id){
+  fetch("http://localhost:5000/api/admin/donor/" + id, {
+    method: "DELETE",
+    headers:{ Authorization: token }
+  })
+  .then(res => res.json())
+  .then(() => loadDonors());
+}
+
+/* =========================
+   LOAD STATS
+========================= */
+function loadStats(){
+  fetch("http://localhost:5000/api/admin/stats", {
+    headers:{ Authorization: token }
+  })
+  .then(res => res.json())
+  .then(d => {
+    document.getElementById("stats").innerHTML = `
+      <h3>📊 Donor Statistics</h3>
+      <p>Total Donors: <b>${d.total}</b></p>
+      <p>A+ Donors: <b>${d.aPos}</b></p>
+      <p>B+ Donors: <b>${d.bPos}</b></p>
+    `;
+  })
+  .catch(err => console.log(err));
+}
+</script>
+
+</body>
+</html>
