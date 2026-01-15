@@ -1,5 +1,5 @@
 {
-  "name": "blood-donation-system",
+  "name": "vercel-express-api",
   "version": "1.0.0",
   "main": "api/index.js",
   "scripts": {
@@ -8,6 +8,6 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "mongoose": "^7.0.0"
+    "mongoose": "^8.0.0"
   }
 }

@@ -4,24 +4,20 @@ const cors = require("cors");
 
 const app = express();
 
-// Middleware
+// middlewares
 app.use(cors());
 app.use(express.json());
 
-// MongoDB connection (use ENV variable)
-mongoose.connect(process.env.MONGO_URL)
-  .then(() => console.log("MongoDB connected"))
-  .catch(err => console.error(err));
-
-// Routes
-app.use("/api/auth", require("../routes/authRoutes"));
-app.use("/api/admin", require("../routes/adminRoutes"));
-app.use("/api/donors", require("../routes/donorRoutes"));
-
-// Root test route
-app.get("/api", (req, res) => {
-  res.json({ message: "Blood Donation API is working 🚀" });
+// test route (IMPORTANT)
+app.get("/", (req, res) => {
+  res.send("API is working on Vercel 🚀");
 });
 
-// IMPORTANT: export app (NO app.listen)
+// example API
+app.get("/api/test", (req, res) => {
+  res.json({ message: "Test API working" });
+});
+
+// ❌ DO NOT USE app.listen()
+// export app instead
 module.exports = app;
