@@ -1,25 +1,37 @@
+const path = require("path");
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 
 const app = express();
+
+// -------------------- MIDDLEWARE --------------------
 app.use(cors());
 app.use(express.json());
 
-// MongoDB
+// -------------------- MONGODB CONNECTION --------------------
 mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connected"))
-  .catch(err => console.log(err));
+  .connect(
+    "mongodb+srv://prachi:prachi123@clustemonr0.vapkmrc.mongodb.net/bloodDB?retryWrites=true&w=majority"
+  )
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.error("❌ MongoDB Error:", err));
 
-// Routes
+// -------------------- ROUTES --------------------
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/donors", require("./routes/donorRoutes"));
 
+// -------------------- FRONTEND (optional) --------------------
+app.use(express.static(path.join(__dirname, "frontend")));
+
 app.get("/", (req, res) => {
-  res.send("Blood Donation API Running");
+  res.send("Blood Donation System API is running 🚑");
 });
 
-// IMPORTANT for Cyclic
-module.exports = app;
+// -------------------- SERVER --------------------
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
